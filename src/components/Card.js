@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalContext';
 import axios from 'axios';
 
@@ -6,6 +6,27 @@ const Card = () => {
   const { state, handleFunctions } = useContext(GlobalContext);
 
   const { data, setData, fetchStatus, setFetchStatus } = state;
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const categoryOptions = [
+    { value: null, label: 'All' },
+    { value: 'Action', label: 'Action' },
+    { value: 'Arcade', label: 'Arcade' },
+    { value: 'Fighting', label: 'Fighting' },
+    { value: 'Horror', label: 'Horror' },
+    { value: 'Adventure', label: 'Adventure' },
+    { value: 'RPG', label: 'RPG' },
+    { value: 'Racing', label: 'Racing' },
+    { value: 'Strategy', label: 'Strategy' },
+    { value: 'Sports', label: 'Sports' },
+    { value: 'Simulators', label: 'Simulators' },
+    { value: 'Other', label: 'Other' },
+  ];
+
+  const handleCategoryFilter = (category) => {
+    setSelectedCategory(category);
+  };
 
   const {
     convertSize,
@@ -32,9 +53,33 @@ const Card = () => {
 
   return (
     <>
-     <div className="p-2 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-5 ">
-     {data !== null &&
-        data.map((app, index) => (
+    {/* Filter buttons */}
+    <div className="flex flex-wrap mb-4">
+    {categoryOptions.map((option) => (
+  <button
+    key={option.value}
+    className={`mr-2 mb-2 px-4 py-2 rounded-lg ${
+      selectedCategory === option.value
+        ? 'bg-[#F05423] text-white'
+        : 'bg-white text-primary'
+    }`}
+    onClick={() => handleCategoryFilter(option.value)}
+  >
+    {option.label}
+  </button>
+))}
+      </div>
+
+      <div className="p-2 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-5">
+      {data !== null &&
+  data
+    .filter(
+      (app) =>
+        selectedCategory === null ||
+        selectedCategory === 'All' || // Tambahkan kondisi ini
+        app.category === selectedCategory
+    )
+    .map((app, index) => (
           <div key={app.id} className=" flex flex-col rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:max-w-xl md:flex-row ">
           <img
     className="h-96 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
@@ -64,8 +109,8 @@ const Card = () => {
                 ) : (
             <h1 className="text-gray-700 font-bold text-xl">Free</h1>
                 )}
-              <div className="flex items-center border-2 border-gray-800 bg-gray-800">
-                  <span className="mr-1 text-yellow-500">Rating {renderStars(app.rating)}</span>
+              <div className="flex items-center border-2 p-2 border-gray-50 bg-[#F05423]">
+                  <span className="mr-1 text-white">Rating {renderStars(app.rating)}</span>
                 </div>
             </div>
           </div>

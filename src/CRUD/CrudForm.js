@@ -1,18 +1,43 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { GlobalContext } from '../context/GlobalContext';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import Select from 'react-select';
 
 const CrudForm = () => {
   const { state, handleFunctions } = useContext(GlobalContext);
   const { Id } = useParams();
+
+  const categoryOptions = [
+    { value: null, label: 'All' },
+    { value: 'Action', label: 'Action' },
+    { value: 'Arcade', label: 'Arcade' },
+    { value: 'Fighting', label: 'Fighting' },
+    { value: 'Horror', label: 'Horror' },
+    { value: 'Adventure', label: 'Adventure' },
+    { value: 'RPG', label: 'RPG' },
+    { value: 'Racing', label: 'Racing' },
+    { value: 'Strategy', label: 'Strategy' },
+    { value: 'Sports', label: 'Sports' },
+    { value: 'Simulators', label: 'Simulators' },
+    { value: 'Other', label: 'Other' },
+  ];
 
   const {
     input,
     setInput,
     setCurrentId,
   } = state;
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [initialCategory, setInitialCategory] = useState(null);
+
+  const handleCategoryChange = (selectedOption) => {
+    setSelectedCategory(selectedOption);
+    const categoryValue = selectedOption ? selectedOption.value : null;
+    setInput({ ...input, category: categoryValue });
+  };
 
   const {
     handleSubmit,
@@ -39,9 +64,13 @@ const CrudForm = () => {
             is_ios_app: data.is_ios_app,
           });
           setCurrentId(data.id);
+          setInitialCategory(data.category);
+          setSelectedCategory(
+            categoryOptions.find((option) => option.value === data.category)
+          );
         });
     }
-  }, [Id, setInput, setCurrentId]);
+  }, [Id, setInput, setCurrentId]);  
 
   return (
     <>
@@ -77,17 +106,15 @@ const CrudForm = () => {
             />
           </div>
           <div className="mb-6">
-            <label className="block mb-2 text-sm font-medium text-gray-900">
-              Category
-            </label>
-            <input
-              onChange={handleInput}
-              value={input.category}
-              name="category"
-              type="text"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#F05423] focus:border-[#F05423] block w-full p-2.5"
-              placeholder="Category"
-              required
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+          Category
+          </label>
+          <Select
+           options={categoryOptions}
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            placeholder="Select a category"
+            className="text-sm"
             />
           </div>
           <div className="mb-6">
